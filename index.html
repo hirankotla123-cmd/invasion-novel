@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Novel — Topbar (ready-to-drop)</title>
+  <style>
+    /* Clean, modern black/white topbar inspired by Google/Instagram. 
+       Drop this file into your site or copy the <header> into your template. */
+    :root{
+      --bg:#ffffff;
+      --fg:#0b0b0b;
+      --muted:#6b6b6b;
+      --accent:#111;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 6px 18px rgba(10,10,10,0.08);
+      --radius:12px;
+      --height:64px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial; background: #fafafa;color:var(--fg)}
+
+    /* Topbar */
+    header.topbar{
+      position:sticky;top:0;z-index:999;
+      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
+      box-shadow: var(--shadow);
+      height:var(--height);
+      display:flex;align-items:center;justify-content:center;padding:0 16px;
+    }
+    .topbar-inner{max-width:1200px; width:100%; display:flex;align-items:center;gap:16px}
+
+    /* Left: brand */
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .brand .logo{
+      width:38px;height:38px;border-radius:8px;display:grid;place-items:center;font-weight:700;background:var(--fg);color:var(--bg);font-size:16px
+    }
+    .brand .title{font-weight:600;font-size:16px;line-height:1}
+
+    /* Center: search */
+    .search-wrap{flex:1;display:flex;justify-content:center}
+    .search{width:100%;max-width:640px;display:flex;align-items:center;gap:10px;background:var(--glass);border-radius:999px;padding:8px 12px;border:1px solid rgba(10,10,10,0.04);height:44px}
+    .search input{flex:1;border:0;outline:0;background:transparent;font-size:15px;color:var(--fg)}
+    .search .k{font-size:13px;color:var(--muted)}
+
+    /* Right: nav */
+    .nav{display:flex;align-items:center;gap:12px}
+    .icon-btn{height:40px;min-width:40px;border-radius:10px;display:grid;place-items:center;cursor:pointer;border:0;background:transparent}
+    .icon-btn:hover{background:rgba(10,10,10,0.03)}
+    .btn-primary{padding:8px 12px;border-radius:10px;border:1px solid rgba(10,10,10,0.06);cursor:pointer}
+
+    /* avatar */
+    .avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#ddd,#bbb);display:grid;place-items:center;font-weight:700}
+    .dropdown{position:absolute;right:16px;top:calc(var(--height) + 8px);background:var(--bg);box-shadow:var(--shadow);border-radius:10px;padding:8px;min-width:200px;display:none}
+    .dropdown a{display:block;padding:8px;border-radius:8px;color:var(--fg);text-decoration:none}
+    .dropdown a:hover{background:rgba(10,10,10,0.03)}
+
+    /* Responsive */
+    @media (max-width:880px){
+      .search-wrap{display:none}
+      header.topbar{padding:0 12px}
+      .brand .title{display:none}
+    }
+    @media (max-width:520px){
+      .icon-btn.hide-sm{display:none}
+    }
+
+    /* subtle focus states */
+    input:focus{box-shadow:0 6px 18px rgba(0,0,0,0.06);}
+
+    /* suggestion box for search */
+    .suggestions{position:absolute;margin-top:8px;background:var(--bg);box-shadow:var(--shadow);border-radius:12px;overflow:hidden;width:100%;max-width:640px}
+    .suggestions li{list-style:none;padding:10px 12px;border-bottom:1px solid rgba(10,10,10,0.03);cursor:pointer}
+    .suggestions li:hover{background:rgba(10,10,10,0.03)}
+
+  </style>
+</head>
+<body>
+
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <a class="brand" href="#">
+      <div class="logo">N</div>
+      <div class="title">Novel — Publish</div>
+    </a>
+
+    <div class="search-wrap">
+      <div style="position:relative;width:100%;display:flex;justify-content:center">
+        <div class="search" role="search" aria-label="Search novels">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"></circle></svg>
+          <input id="searchInput" placeholder="Search title, author, tags..." autocomplete="off"/>
+          <div class="k">/</div>
+        </div>
+        <ul id="suggestions" class="suggestions" style="display:none"></ul>
+      </div>
+    </div>
+
+    <nav class="nav" role="navigation" aria-label="Top navigation">
+      <button class="icon-btn hide-sm" title="Home" aria-label="Home">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </button>
+
+      <button class="icon-btn" title="Write a story" id="writeBtn">Write</button>
+
+      <div style="position:relative">
+        <button class="icon-btn" id="avatarBtn" aria-haspopup="true" aria-expanded="false">
+          <div class="avatar">A</div>
+        </button>
+        <div id="dropdown" class="dropdown" role="menu" aria-hidden="true">
+          <a href="#">My profile</a>
+          <a href="#">My drafts</a>
+          <a href="#">Settings</a>
+          <a href="#" style="color:crimson">Log out</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main style="padding:40px;max-width:900px;margin:0 auto">
+  <h1 style="margin:0 0 12px">Welcome (or whatever)</h1>
+  <p style="color:var(--muted)">This is a demo page. The topbar is ready to be integrated into your site. The search suggestions are mocked for demo purposes.</p>
+
+  <!-- dummy content to show sticky behavior -->
+  <div style="height:1200px; background:linear-gradient(180deg,#fff,#f4f4f4); margin-top:24px;border-radius:12px;padding:24px">Scroll to test sticky header</div>
+</main>
+
+<script>
+  // Light JS: dropdown, mocked search suggestions, and keyboard shortcut.
+  const avatarBtn = document.getElementById('avatarBtn');
+  const dropdown = document.getElementById('dropdown');
+  avatarBtn.addEventListener('click', e=>{
+    const open = dropdown.style.display === 'block';
+    dropdown.style.display = open ? 'none' : 'block';
+    avatarBtn.setAttribute('aria-expanded', String(!open));
+    dropdown.setAttribute('aria-hidden', String(open));
+  });
+  document.addEventListener('click', e=>{
+    if (!avatarBtn.contains(e.target) && !dropdown.contains(e.target)){
+      dropdown.style.display = 'none';avatarBtn.setAttribute('aria-expanded','false');dropdown.setAttribute('aria-hidden','true')
+    }
+  });
+
+  // Search suggestions (demo). Replace with your backend API.
+  const suggestions = document.getElementById('suggestions');
+  const input = document.getElementById('searchInput');
+  const sample = [
+    'The Last Lighthouse', 'Dawn of Ashes', 'Letters to the River', 'Midnight Journal', 'A Quiet Rebellion' 
+  ];
+
+  input.addEventListener('input', e=>{
+    const q = e.target.value.trim().toLowerCase();
+    if (!q){ suggestions.style.display='none'; return }
+    const hits = sample.filter(s=>s.toLowerCase().includes(q)).slice(0,6);
+    if (hits.length===0){ suggestions.style.display='none'; return }
+    suggestions.innerHTML = hits.map(h=>`<li tabindex="0">${h}</li>`).join('');
+    suggestions.style.display = 'block';
+    // click handler
+    Array.from(suggestions.children).forEach(li=>li.addEventListener('click', ()=>{ input.value = li.textContent; suggestions.style.display='none'; }))
+  });
+
+  // keyboard shortcut: press / to focus search
+  window.addEventListener('keydown', e=>{
+    if (e.key === '/' && document.activeElement !== input){ e.preventDefault(); input.focus(); }
+  });
+
+  // example: write button (hook into your editor route)
+  document.getElementById('writeBtn').addEventListener('click', ()=>{
+    // change this to your 'new story' route
+    window.location.href = '/write/new';
+  });
+
+</script>
+
+</body>
+</html>
